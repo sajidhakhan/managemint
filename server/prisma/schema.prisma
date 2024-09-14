@@ -1,0 +1,109 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  username          String   @unique
+  profilePictureUrl String?
+  teamId            String?  @db.ObjectId
+  role              String?
+
+  authoredTasks     Task[]           @relation("TaskAuthor")
+  assignedTasks     Task[]           @relation("TaskAssignee")
+  taskAssignments   TaskAssignment[]
+  attachments       Attachment[]
+  comments          Comment[]
+  team              Team?            @relation(fields: [teamId], references: [id])
+}
+
+model Team {
+  id                String           @id @default(auto()) @map("_id") @db.ObjectId
+  teamName          String
+  productOwnerUserId String?         @db.ObjectId
+  projectManagerUserId String?       @db.ObjectId
+  projectTeams      ProjectTeam[]
+  user              User[]
+}
+
+model Project {
+  id                String           @id @default(auto()) @map("_id") @db.ObjectId
+  name              String
+  description       String?
+  startDate         DateTime?
+  endDate           DateTime?
+  tasks             Task[]
+  projectTeams      ProjectTeam[]
+}
+
+model ProjectTeam {
+  id                String     @id @default(auto()) @map("_id") @db.ObjectId
+  teamId            String     @db.ObjectId
+  projectId         String     @db.ObjectId
+  team              Team       @relation(fields: [teamId], references: [id])
+  project           Project    @relation(fields: [projectId], references: [id])
+}
+
+model Task {
+  id                String       @id @default(auto()) @map("_id") @db.ObjectId
+  title             String
+  description       String?
+  status            String?
+  priority          String?
+  tags              String?
+  startDate         DateTime?
+  dueDate           DateTime?
+  points            Int?
+  projectId         String       @db.ObjectId
+  authorUserId      String       @db.ObjectId
+  assignedUserId    String?      @db.ObjectId
+
+  project           Project          @relation(fields: [projectId], references: [id])
+  author            User             @relation("TaskAuthor", fields: [authorUserId], references: [id])
+  assignee          User?            @relation("TaskAssignee", fields: [assignedUserId], references: [id])
+  taskAssignments   TaskAssignment[]
+  attachments       Attachment[]
+  comments          Comment[]
+}
+
+model TaskAssignment {
+  id                String @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String @db.ObjectId
+  taskId            String @db.ObjectId
+
+  user              User @relation(fields: [userId], references: [id])
+  task              Task @relation(fields: [taskId], references: [id])
+}
+
+model Attachment {
+  id                String     @id @default(auto()) @map("_id") @db.ObjectId
+  fileURL           String
+  fileName          String?
+  taskId            String     @db.ObjectId
+  uploadedById      String     @db.ObjectId
+
+  task              Task @relation(fields: [taskId], references: [id])
+  uploadedBy        User @relation(fields: [uploadedById], references: [id])
+}
+
+model Comment {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  text              String
+  taskId            String    @db.ObjectId
+  userId            String    @db.ObjectId
+
+  task              Task @relation(fields: [taskId], references: [id])
+  user              User @relation(fields: [userId], references: [id])
+}
+
