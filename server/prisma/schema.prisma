@@ -1,38 +1,40 @@
+
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id                String           @id @default(auto()) @map("_id") @db.ObjectId
-  cognitoId         String           @unique
-  username          String           @unique
+  userId            Int     @id @default(autoincrement())
+  cognitoId         String  @unique
+  username          String  @unique
   profilePictureUrl String?
-  teamId            String?          @db.ObjectId
-  authoredTasks     Task[]           @relation("TaskAuthor")
-  assignedTasks     Task[]           @relation("TaskAssignee")
-  taskAssignments   TaskAssignment[]
-  attachments       Attachment[]
-  comments          Comment[]
-  team              Team?            @relation(fields: [teamId], references: [id])
+  teamId            Int?
+
+  authoredTasks   Task[]           @relation("TaskAuthor")
+  assignedTasks   Task[]           @relation("TaskAssignee")
+  taskAssignments TaskAssignment[]
+  attachments     Attachment[]
+  comments        Comment[]
+  team            Team?            @relation(fields: [teamId], references: [id])
 }
 
 model Team {
-  id                   String        @id @default(auto()) @map("_id") @db.ObjectId
+  id                   Int           @id @default(autoincrement())
   teamName             String
-  productOwnerUserId   String?       @db.ObjectId
-  projectManagerUserId String?       @db.ObjectId
+  productOwnerUserId   Int?
+  projectManagerUserId Int?
   projectTeams         ProjectTeam[]
   user                 User[]
 }
 
 model Project {
-  id           String        @id @default(auto()) @map("_id") @db.ObjectId
+  id           Int           @id @default(autoincrement())
   name         String
   description  String?
   startDate    DateTime?
@@ -42,15 +44,15 @@ model Project {
 }
 
 model ProjectTeam {
-  id        String  @id @default(auto()) @map("_id") @db.ObjectId
-  teamId    String  @db.ObjectId
-  projectId String  @db.ObjectId
+  id        Int     @id @default(autoincrement())
+  teamId    Int
+  projectId Int
   team      Team    @relation(fields: [teamId], references: [id])
   project   Project @relation(fields: [projectId], references: [id])
 }
 
 model Task {
-  id             String           @id @default(auto()) @map("_id") @db.ObjectId
+  id             Int       @id @default(autoincrement())
   title          String
   description    String?
   status         String?
@@ -59,40 +61,44 @@ model Task {
   startDate      DateTime?
   dueDate        DateTime?
   points         Int?
-  projectId      String           @db.ObjectId
-  authorUserId   String           @db.ObjectId
-  assignedUserId String?          @db.ObjectId
-  project        Project          @relation(fields: [projectId], references: [id])
-  author         User             @relation("TaskAuthor", fields: [authorUserId], references: [id])
-  assignee       User?            @relation("TaskAssignee", fields: [assignedUserId], references: [id])
+  projectId      Int
+  authorUserId   Int
+  assignedUserId Int?
+
+  project         Project          @relation(fields: [projectId], references: [id])
+  author          User             @relation("TaskAuthor", fields: [authorUserId], references: [userId])
+  assignee        User?            @relation("TaskAssignee", fields: [assignedUserId], references: [userId])
   taskAssignments TaskAssignment[]
-  attachments    Attachment[]
-  comments       Comment[]
+  attachments     Attachment[]
+  comments        Comment[]
 }
 
 model TaskAssignment {
-  id     String @id @default(auto()) @map("_id") @db.ObjectId
-  userId String @db.ObjectId
-  taskId String @db.ObjectId
-  user   User   @relation(fields: [userId], references: [id])
-  task   Task   @relation(fields: [taskId], references: [id])
+  id     Int @id @default(autoincrement())
+  userId Int
+  taskId Int
+
+  user User @relation(fields: [userId], references: [userId])
+  task Task @relation(fields: [taskId], references: [id])
 }
 
 model Attachment {
-  id           String @id @default(auto()) @map("_id") @db.ObjectId
+  id           Int     @id @default(autoincrement())
   fileURL      String
   fileName     String?
-  taskId       String @db.ObjectId
-  uploadedById String @db.ObjectId
-  task         Task   @relation(fields: [taskId], references: [id])
-  uploadedBy   User   @relation(fields: [uploadedById], references: [id])
+  taskId       Int
+  uploadedById Int
+
+  task       Task @relation(fields: [taskId], references: [id])
+  uploadedBy User @relation(fields: [uploadedById], references: [userId])
 }
 
 model Comment {
-  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  id     Int    @id @default(autoincrement())
   text   String
-  taskId String @db.ObjectId
-  userId String @db.ObjectId
-  task   Task   @relation(fields: [taskId], references: [id])
-  user   User   @relation(fields: [userId], references: [id])
+  taskId Int
+  userId Int
+
+  task Task @relation(fields: [taskId], references: [id])
+  user User @relation(fields: [userId], references: [userId])
 }
