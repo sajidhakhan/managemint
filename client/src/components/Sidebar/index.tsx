@@ -2,6 +2,7 @@
 
 import { useAppDispatch, useAppSelector } from '@/app/redux';
 import { setIsSideBarCollapsed } from '@/state';
+import { useGetProjectsQuery } from '@/state/api';
 import { AlertCircle, AlertOctagon, AlertTriangle, Briefcase, ChevronDown, ChevronUp, HomeIcon, Layers, LockIcon, LucideIcon, Search, Settings, ShieldAlert, User, Users, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -11,6 +12,8 @@ import React, { useState } from 'react';
 const Sidebar = () => {
     const [showProjects, setShowProjects] = useState(true);
     const [showPriority, setShowPriority] = useState(true);
+
+    const { data: projects } = useGetProjectsQuery();
 
     const dispatch = useAppDispatch();
 
@@ -76,7 +79,14 @@ const Sidebar = () => {
                  )}
                 </button>
                 {/* PROJECT LIST */}
-
+                 {showProjects && projects?.map((project) =>(
+                    <SidebarLink 
+                      key={project.id}
+                      icon={Briefcase}
+                      label={project.name}
+                      href={`/projects/${project.id}`}
+                    />
+                 ))}
                 {/* PRIORITY LINKS  */}
                 <button onClick={() => setShowPriority((prev) => !prev)}
                 className='flex w-full items-center justify-between p-8 py-3 text-gray-500'
