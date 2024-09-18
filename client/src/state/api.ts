@@ -15,12 +15,13 @@ export enum Priority{
     Low= "Low",
     Backlog = "Backlog",
 }
-export enum Status{
-    ToDo = " To Do",
+
+export enum Status {
+    ToDo = "To Do",
     WorkInProgress = "Work In Progress",
-    underReview = "Under Review",
-    Completed= "Completed",
-}
+    UnderReview = "Under Review",
+    Completed = "Completed",
+  }
 
 export interface Attachment {
    id: number;
@@ -39,24 +40,24 @@ export interface User{
 }
 
 export interface Task {
-    id:number
-    title: number;
+    id: number;
+    title: string;
     description?: string;
     status?: Status;
     priority?: Priority;
     tags?: string;
-    startDate?: string
+    startDate?: string;
     dueDate?: string;
     points?: number;
-    projectId?: number;
+    projectId: number;
     authorUserId?: number;
     assignedUserId?: number;
-
-    author?: User,
-    assignee?: User,
-    comments?: Comment[],
-    attachments?: Attachment[],
-}
+  
+    author?: User;
+    assignee?: User;
+    comments?: Comment[];
+    attachments?: Attachment[];
+  }
 
 export const api = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL }),
@@ -89,14 +90,14 @@ export const api = createApi({
                 ? result.map(({ id }) => ({ type: "Tasks", id }))
                 : [{ type: "Tasks", id: userId }],
           }),
-        createTask: build.mutation<Task, Partial<Task>>({
+          createTask: build.mutation<Task, Partial<Task>>({
             query: (task) => ({
-                url: "tasks", 
-                method: 'POST',
-                body: task,
+              url: "tasks",
+              method: "POST",
+              body: task,
             }),
-            invalidatesTags: ["Tasks"], 
-        }),
+            invalidatesTags: ["Tasks"],
+          }),
         updateTaskStatus: build.mutation<Task, { taskId: number; status: string }>({
             query: ({ taskId, status }) => ({
                 url: `tasks/${taskId}/status`, 

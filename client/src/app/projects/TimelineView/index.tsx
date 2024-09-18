@@ -1,3 +1,5 @@
+"use client"
+
 import { useAppSelector } from "@/app/redux";
 import { useGetTasksQuery } from "@/state/api";
 import { DisplayOption, Gantt, ViewMode } from "gantt-task-react";
@@ -29,7 +31,7 @@ const Timeline = ({ id, setIsModalNewTaskOpen }: Props) => {
       tasks?.map((task) => ({
         start: new Date(task.startDate as string),
         end: new Date(task.dueDate as string),
-        name: task.title.toString(),
+        name: task.title,
         id: `Task-${task.id}`,
         type: "task" as TaskTypeItems,
         progress: task.points ? (task.points / 10) * 100 : 0,
