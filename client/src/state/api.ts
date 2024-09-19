@@ -38,6 +38,11 @@ export interface User{
    cognitoId?: string;
    teamId?: number;
 }
+export interface SearchResults {
+  tasks?: Task[];
+  projects?: Project[];
+  users?: User[];
+}
 
 export interface Task {
     id: number;
@@ -108,6 +113,9 @@ export const api = createApi({
                 { type: "Tasks", id: taskId },
             ]
         }),
+        search: build.query<SearchResults, string>({
+          query: (query) => `search?query=${query}`,
+        }),
     }),
 });
-export const { useGetProjectsQuery, useCreateProjectMutation, useGetTasksQuery, useCreateTaskMutation,useUpdateTaskStatusMutation} = api;
+export const { useGetProjectsQuery, useCreateProjectMutation, useGetTasksQuery, useCreateTaskMutation,useUpdateTaskStatusMutation,useSearchQuery} = api;
