@@ -9,16 +9,24 @@ import {
   GridToolbarContainer,
   GridToolbarExport,
   GridToolbarFilterButton,
+  GridCsvExportOptions,
 } from "@mui/x-data-grid";
 import Image from "next/image";
 import { dataGridClassNames, dataGridSxStyles } from "@/lib/utils";
 
-const CustomToolbar = () => (
-  <GridToolbarContainer className="toolbar flex gap-2">
-    <GridToolbarFilterButton />
-    <GridToolbarExport />
-  </GridToolbarContainer>
-);
+const CustomToolbar = () => {
+  const csvOptions: GridCsvExportOptions = {
+    fileName: 'users_export',
+    utf8WithBom: true,
+  };
+
+  return (
+    <GridToolbarContainer className="toolbar flex gap-2">
+      <GridToolbarFilterButton />
+      <GridToolbarExport csvOptions={csvOptions} />
+    </GridToolbarContainer>
+  );
+};
 
 const columns: GridColDef[] = [
   { field: "userId", headerName: "ID", width: 100 },

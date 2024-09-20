@@ -6,10 +6,10 @@ import { formatISO } from "date-fns";
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  id?: string | null;
+  id: string;
 };
 
-const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
+const ModalNewTask = ({ isOpen, onClose, id}: Props) => {
   const [createTask, { isLoading }] = useCreateTaskMutation();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -23,7 +23,7 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
   const [projectId, setProjectId] = useState("");
 
   const handleSubmit = async () => {
-    if (!title || !authorUserId || !(id !== null || projectId)) return;
+    if (!title || !authorUserId ) return;
 
     const formattedStartDate = formatISO(new Date(startDate), {
       representation: "complete",
@@ -42,12 +42,12 @@ const ModalNewTask = ({ isOpen, onClose, id = null }: Props) => {
       dueDate: formattedDueDate,
       authorUserId: parseInt(authorUserId),
       assignedUserId: parseInt(assignedUserId),
-      projectId: id !== null ? Number(id) : Number(projectId),
+      projectId: Number(id),
     });
   };
 
   const isFormValid = () => {
-    return title && authorUserId && !(id !== null || projectId);
+    return title && authorUserId;
   };
 
   const selectStyles =

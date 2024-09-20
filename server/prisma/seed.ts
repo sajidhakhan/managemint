@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import fs from "fs";
 import path from "path";
+
 const prisma = new PrismaClient();
 
 async function deleteAllData(orderedFileNames: string[]) {
@@ -9,8 +10,8 @@ async function deleteAllData(orderedFileNames: string[]) {
     return modelName.charAt(0).toUpperCase() + modelName.slice(1);
   });
 
-  for (const modelName of modelNames) {
-    const model: any = prisma[modelName as keyof typeof prisma];
+  for (const modelName of modelNames.reverse()) {
+    const model: any = prisma[modelName.toLowerCase() as keyof typeof prisma];
     try {
       await model.deleteMany({});
       console.log(`Cleared data from ${modelName}`);
@@ -44,7 +45,12 @@ async function main() {
 
     try {
       for (const data of jsonData) {
-        await model.create({ data });
+        const { id, ...otherData } = data;
+        await model.upsert({
+          where: { id },
+          update: otherData,
+          create: data,
+        });
       }
       console.log(`Seeded ${modelName} with data from ${fileName}`);
     } catch (error) {

@@ -25,7 +25,7 @@ const CustomToolbar = () => {
         <GridToolbarExport csvOptions={csvOptions} />
       </GridToolbarContainer>
     );
-  };
+};
 
 const columns: GridColDef[] = [
   { field: "id", headerName: "Team ID", width: 100 },

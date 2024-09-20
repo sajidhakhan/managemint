@@ -8,6 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -22,8 +33,8 @@ function deleteAllData(orderedFileNames) {
             const modelName = path_1.default.basename(fileName, path_1.default.extname(fileName));
             return modelName.charAt(0).toUpperCase() + modelName.slice(1);
         });
-        for (const modelName of modelNames) {
-            const model = prisma[modelName];
+        for (const modelName of modelNames.reverse()) {
+            const model = prisma[modelName.toLowerCase()];
             try {
                 yield model.deleteMany({});
                 console.log(`Cleared data from ${modelName}`);
@@ -55,7 +66,12 @@ function main() {
             const model = prisma[modelName];
             try {
                 for (const data of jsonData) {
-                    yield model.create({ data });
+                    const { id } = data, otherData = __rest(data, ["id"]);
+                    yield model.upsert({
+                        where: { id },
+                        update: otherData,
+                        create: data,
+                    });
                 }
                 console.log(`Seeded ${modelName} with data from ${fileName}`);
             }
