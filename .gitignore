@@ -1,7 +1,16 @@
-client/node_modules
-server/node_modules
-client/dist
-server/dist
+# Client
+client/node_modules/
+client/dist/
 client/.env
-server/.env
 client/.next/
+
+# Server
+server/node_modules/
+server/dist/
+server/.env
+
+# General
+node_modules/
+dist/
+.env
+.next/
